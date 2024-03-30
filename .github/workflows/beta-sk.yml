@@ -6,16 +6,32 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Prepare build environment
-        uses: easimon/maximize-build-space@master
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
         with:
-          swap-size-mb: 2
-          remove-dotnet: 'true'
-          remove-android: 'true'
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+          
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
       - uses: actions/checkout@v4
+      # - name: Build Image
+      #   uses: docker://archlinux:latest
+      #   with:
+      #     options: --privileged=true
+      #     args: |
+      #       ./build.sh beta-sk
+      - run: df -h
       - name: Build Image
-        uses: docker://archlinux:latest
-        with:
-          options: --privileged=true
-          args: |
-            ./build.sh beta-sk
+        run: |
+          mkdir -p output
+          mkdir -p workdir
+          docker pull archlinux:latest
+          docker run -u root --privileged=true -v $(pwd):/holoiso -v $(pwd)/workdir:/holoiso/workdir -v $(pwd)/output:/holoiso/output -e GITHUB_REF_NAME=$GITHUB_REF_NAME -w /holoiso archlinux:latest ./build.sh beta-sk
