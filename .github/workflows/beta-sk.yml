@@ -1,0 +1,21 @@
+name: Build System Image (beta-sk)
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare build environment
+        uses: easimon/maximize-build-space@master
+        with:
+          swap-size-mb: 2
+          remove-dotnet: 'true'
+          remove-android: 'true'
+      - uses: actions/checkout@v4
+      - name: Build Image
+        uses: docker://archlinux:latest
+        with:
+          options: --privileged --cap-add SYS_ADMIN
+          args: |
+            ./build.sh beta-sk
