@@ -16,6 +16,6 @@ jobs:
       - name: Build Image
         uses: docker://archlinux:latest
         with:
-          options: --privileged --cap-add SYS_ADMIN
+          options: --privileged=true
           args: |
             ./build.sh beta-sk
